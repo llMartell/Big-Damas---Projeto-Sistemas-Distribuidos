@@ -21,7 +21,6 @@ public class Tabuleiro {
             for (int coluna = 0; coluna < 8; coluna++) {
 
                 if ((linha + coluna) % 2 != 0) {
-
                     matriz[linha][coluna] =
                             new Peca(Jogador.JOGADOR_1);
                 }
@@ -33,7 +32,6 @@ public class Tabuleiro {
             for (int coluna = 0; coluna < 8; coluna++) {
 
                 if ((linha + coluna) % 2 != 0) {
-
                     matriz[linha][coluna] =
                             new Peca(Jogador.JOGADOR_2);
                 }
@@ -44,7 +42,6 @@ public class Tabuleiro {
     public void imprimirTabuleiro() {
 
         System.out.println();
-
         System.out.print("  ");
 
         for (int coluna = 0; coluna < 8; coluna++) {
@@ -71,6 +68,7 @@ public class Tabuleiro {
                             System.out.print("D ");
 
                         } else {
+
                             System.out.print("A ");
                         }
 
@@ -80,6 +78,7 @@ public class Tabuleiro {
                             System.out.print("E ");
 
                         } else {
+
                             System.out.print("B ");
                         }
                     }
@@ -90,6 +89,48 @@ public class Tabuleiro {
         }
 
         System.out.println();
+    }
+
+    public String[][] gerarEstadoTabuleiro() {
+
+        String[][] estado = new String[8][8];
+
+        for (int linha = 0; linha < 8; linha++) {
+
+            for (int coluna = 0; coluna < 8; coluna++) {
+
+                Peca peca = matriz[linha][coluna];
+
+                if (peca == null) {
+                    estado[linha][coluna] = "-";
+
+                } else {
+
+                    if (peca.getJogador() == Jogador.JOGADOR_1) {
+
+                        if (peca.getTipo() == TipoPeca.DAMA) {
+                            estado[linha][coluna] = "D";
+
+                        } else {
+
+                            estado[linha][coluna] = "A";
+                        }
+
+                    } else {
+
+                        if (peca.getTipo() == TipoPeca.DAMA) {
+                            estado[linha][coluna] = "E";
+
+                        } else {
+
+                            estado[linha][coluna] = "B";
+                        }
+                    }
+                }
+            }
+        }
+
+        return estado;
     }
 
     public Peca[][] getMatriz() {

@@ -202,4 +202,7 @@ public class JogoService {
             System.out.println();
         }
     }
+    public String[][] getEstadoTabuleiro() {
+        return tabuleiro.gerarEstadoTabuleiro();
+    }
 }

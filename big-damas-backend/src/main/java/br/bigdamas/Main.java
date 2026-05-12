@@ -12,11 +12,15 @@ public class Main {
 
         JogoService jogoService = new JogoService();
 
-        while (true) {
+        while (!jogoService.isJogoEncerrado()) {
 
             jogoService.getTabuleiro().imprimirTabuleiro();
 
             System.out.println("Turno: " + jogoService.getJogadorAtual());
+
+            String[][] estado = jogoService.getEstadoTabuleiro();
+
+            System.out.println("Estado [0][1]: " + estado[0][1]);
 
             System.out.print("Origem linha: ");
             int origemLinha = scanner.nextInt();
@@ -30,18 +34,16 @@ public class Main {
             System.out.print("Destino coluna: ");
             int destinoColuna = scanner.nextInt();
 
-            boolean sucesso = jogoService.moverPeca(
-                    origemLinha,
-                    origemColuna,
-                    destinoLinha,
-                    destinoColuna
-            );
+            boolean moveu = jogoService.moverPeca(origemLinha, origemColuna, destinoLinha, destinoColuna);
 
-            if (sucesso) {
+            if (moveu) {
                 System.out.println("Movimento realizado.");
+
             } else {
                 System.out.println("Erro ao mover.");
             }
         }
+
+        scanner.close();
     }
 }
