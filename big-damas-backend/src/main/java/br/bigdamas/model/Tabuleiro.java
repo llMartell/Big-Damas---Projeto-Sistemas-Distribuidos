@@ -1,13 +1,16 @@
 package br.bigdamas.model;
 
 import br.bigdamas.enums.Jogador;
+import br.bigdamas.enums.TipoPeca;
 
 public class Tabuleiro {
 
     private Peca[][] matriz;
 
     public Tabuleiro() {
+
         matriz = new Peca[8][8];
+
         iniciarTabuleiro();
     }
 
@@ -18,7 +21,9 @@ public class Tabuleiro {
             for (int coluna = 0; coluna < 8; coluna++) {
 
                 if ((linha + coluna) % 2 != 0) {
-                    matriz[linha][coluna] = new Peca(Jogador.JOGADOR_1);
+
+                    matriz[linha][coluna] =
+                            new Peca(Jogador.JOGADOR_1);
                 }
             }
         }
@@ -28,7 +33,9 @@ public class Tabuleiro {
             for (int coluna = 0; coluna < 8; coluna++) {
 
                 if ((linha + coluna) % 2 != 0) {
-                    matriz[linha][coluna] = new Peca(Jogador.JOGADOR_2);
+
+                    matriz[linha][coluna] =
+                            new Peca(Jogador.JOGADOR_2);
                 }
             }
         }
@@ -47,19 +54,34 @@ public class Tabuleiro {
         System.out.println();
 
         for (int linha = 0; linha < 8; linha++) {
-
             System.out.print(linha + " ");
 
             for (int coluna = 0; coluna < 8; coluna++) {
 
                 if (matriz[linha][coluna] == null) {
                     System.out.print("- ");
+
                 } else {
 
-                    if (matriz[linha][coluna].getJogador() == Jogador.JOGADOR_1) {
-                        System.out.print("A ");
+                    Peca peca = matriz[linha][coluna];
+
+                    if (peca.getJogador() == Jogador.JOGADOR_1) {
+
+                        if (peca.getTipo() == TipoPeca.DAMA) {
+                            System.out.print("D ");
+
+                        } else {
+                            System.out.print("A ");
+                        }
+
                     } else {
-                        System.out.print("B ");
+
+                        if (peca.getTipo() == TipoPeca.DAMA) {
+                            System.out.print("E ");
+
+                        } else {
+                            System.out.print("B ");
+                        }
                     }
                 }
             }
