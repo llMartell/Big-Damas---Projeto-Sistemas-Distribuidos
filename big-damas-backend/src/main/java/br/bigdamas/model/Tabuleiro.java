@@ -38,7 +38,17 @@ public class Tabuleiro {
 
         System.out.println();
 
+        System.out.print("  ");
+
+        for (int coluna = 0; coluna < 8; coluna++) {
+            System.out.print(coluna + " ");
+        }
+
+        System.out.println();
+
         for (int linha = 0; linha < 8; linha++) {
+
+            System.out.print(linha + " ");
 
             for (int coluna = 0; coluna < 8; coluna++) {
 
@@ -58,5 +68,9 @@ public class Tabuleiro {
         }
 
         System.out.println();
+    }
+
+    public Peca[][] getMatriz() {
+        return matriz;
     }
 }

@@ -1,13 +1,47 @@
 package br.bigdamas;
 
-import br.bigdamas.model.Tabuleiro;
+import br.bigdamas.service.JogoService;
+
+import java.util.Scanner;
 
 public class Main {
 
     public static void main(String[] args) {
 
-        Tabuleiro tabuleiro = new Tabuleiro();
+        Scanner scanner = new Scanner(System.in);
 
-        tabuleiro.imprimirTabuleiro();
+        JogoService jogoService = new JogoService();
+
+        while (true) {
+
+            jogoService.getTabuleiro().imprimirTabuleiro();
+
+            System.out.println("Turno: " + jogoService.getJogadorAtual());
+
+            System.out.print("Origem linha: ");
+            int origemLinha = scanner.nextInt();
+
+            System.out.print("Origem coluna: ");
+            int origemColuna = scanner.nextInt();
+
+            System.out.print("Destino linha: ");
+            int destinoLinha = scanner.nextInt();
+
+            System.out.print("Destino coluna: ");
+            int destinoColuna = scanner.nextInt();
+
+            boolean sucesso = jogoService.moverPeca(
+                    origemLinha,
+                    origemColuna,
+                    destinoLinha,
+                    destinoColuna
+            );
+
+            if (sucesso) {
+                System.out.println("Movimento realizado.");
+            } else {
+                System.out.println("Erro ao mover.");
+            }
+        }
     }
 }
