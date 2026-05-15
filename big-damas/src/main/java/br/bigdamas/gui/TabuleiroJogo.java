@@ -10,7 +10,7 @@ public class TabuleiroJogo extends JFrame {
     public TabuleiroJogo() {
         //Titulo e definições principais
         setTitle("Big Damas");
-        setSize(700, 700);
+        setSize(760, 700);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
