@@ -1,14 +1,20 @@
 package br.bigdamas;
 
+import br.bigdamas.gui.TabuleiroJogo;
 import br.bigdamas.service.JogoService;
 
+import javax.swing.*;
 import java.util.Scanner;
 
 public class Main {
 
     public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            TabuleiroJogo tabuleiro = new TabuleiroJogo();
+            tabuleiro.setVisible(true);
 
-        Scanner scanner = new Scanner(System.in);
+        });
+/**        Scanner scanner = new Scanner(System.in);
 
         JogoService jogoService = new JogoService();
 
@@ -44,6 +50,6 @@ public class Main {
             }
         }
 
-        scanner.close();
+        scanner.close(); **/
     }
 }

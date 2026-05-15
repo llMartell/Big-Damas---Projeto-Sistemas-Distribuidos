@@ -9,8 +9,10 @@
         <module name="big-damas" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="Jogo" target="25" />
-    </bytecodeTargetLevel>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="Big-Damas---Projeto-Sistemas-Distribuidos" options="" />
+    </option>
   </component>
 </project>
