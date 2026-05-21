@@ -68,8 +68,8 @@ public class TabuleiroJogo extends JFrame {
         painelCentral.add(painelTabuleiro);
 
         // Interface dos jogadores
-        JPanel painelEsquerda = criarPainelJogador(Jogador.JOGADOR_1, "meme_p1.png");
-        JPanel painelDireita = criarPainelJogador(Jogador.JOGADOR_2, "meme_p2.png");
+        JPanel painelEsquerda = criarPainelJogador(Jogador.JOGADOR_1, "foto_j1.jpg");
+        JPanel painelDireita = criarPainelJogador(Jogador.JOGADOR_2, "foto_j2.jpg");
 
         painelPrincipal.add(painelEsquerda, BorderLayout.WEST);
         painelPrincipal.add(painelCentral, BorderLayout.CENTER);
@@ -95,8 +95,10 @@ public class TabuleiroJogo extends JFrame {
         JLabel labelFoto = new JLabel();
         labelFoto.setAlignmentX(Component.CENTER_ALIGNMENT);
         labelFoto.setBorder(BorderFactory.createLineBorder(Color.WHITE, 2));
-        labelFoto.setPreferredSize(new Dimension(200, 200));
-        labelFoto.setMaximumSize(new Dimension(200, 200));
+        labelFoto.setPreferredSize(new Dimension(180, 180));
+        labelFoto.setMaximumSize(new Dimension(180, 180));
+        labelFoto.setHorizontalAlignment(SwingConstants.CENTER);
+        labelFoto.setVerticalAlignment(SwingConstants.CENTER);
 
         // Tenta carregar imagem do jogador
         labelFoto.setIcon(carregarIcone("/img/" + nomeArquivoMeme, 180, 180));
