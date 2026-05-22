@@ -172,7 +172,7 @@ public class TabuleiroJogo extends JFrame {
 
         if (jogoService.isJogoEncerrado()) {
             labelStatusTurno.setText("VITÓRIA DO JOGADOR " + (atual == Jogador.JOGADOR_1 ? "1" : "2") + "!");
-            JOptionPane.showMessageDialog(this, "GAME OVER: Memes venceram!");
+            JOptionPane.showMessageDialog(this, "FIM DE JOGO!");
         }
     }
 
