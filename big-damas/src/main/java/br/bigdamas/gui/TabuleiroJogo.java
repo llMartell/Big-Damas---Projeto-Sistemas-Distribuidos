@@ -226,7 +226,7 @@ public class TabuleiroJogo extends JFrame {
 
      //Método para renderizar imagens
     private ImageIcon carregarIcone(String path, int width, int height) {
-        // Se a imagem já foi carregada antes, retorna ela direto da memória (Rápido!)
+        // Se a imagem já foi carregada antes
         if (cacheIcones.containsKey(path)) {
             return cacheIcones.get(path);
         }
@@ -240,7 +240,7 @@ public class TabuleiroJogo extends JFrame {
         ImageIcon iconResultado;
 
         if (path.toLowerCase().endsWith(".gif")) {
-            // Para GIFs: Carregamos o original e criamos uma versão que se auto-ajusta no desenho
+            // Para GIFs: Carregamos o original e criam uma versão que se auto-ajusta no desenho
             ImageIcon original = new ImageIcon(imgUrl);
             iconResultado = new ImageIcon(original.getImage()) {
                 @Override
@@ -249,12 +249,12 @@ public class TabuleiroJogo extends JFrame {
                 public int getIconHeight() { return height; }
                 @Override
                 public synchronized void paintIcon(Component c, Graphics g, int x, int y) {
-                    // Desenha a imagem redimensionada em tempo real sem travar
+                    // Desenha a imagem redimensionada em tempo
                     g.drawImage(getImage(), x, y, width, height, c);
                 }
             };
         } else {
-            // Para PNG/JPG: Redimensionamento padrão
+            // Para PNG/JPG
             ImageIcon original = new ImageIcon(imgUrl);
             Image img = original.getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH);
             iconResultado = new ImageIcon(img);
