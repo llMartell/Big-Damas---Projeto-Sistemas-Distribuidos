@@ -3,7 +3,10 @@ package br.bigdamas.model;
 import br.bigdamas.enums.Jogador;
 import br.bigdamas.enums.TipoPeca;
 
-public class Peca {
+import java.io.Serializable;
+
+public class Peca implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     private Jogador jogador;
     private TipoPeca tipo;
