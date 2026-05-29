@@ -26,18 +26,9 @@ public class TabuleiroJogo extends JFrame {
     // Controle para o pop-up não repetir infinitamente por causa da Thread
     private boolean avisoFimDeJogoExibido = false; 
 
-    public TabuleiroJogo() {
-        // Tenta conectar ao servidor remoto RMI
-        try {
-            // IMPORTANTE: Altere para o IP real do computador Servidor quando testar em duas máquinas
-            String ipServidor = "127.0.0.1"; 
-            this.jogoService = (br.bigdamas.service.IJogoService) java.rmi.Naming.lookup("rmi://" + ipServidor + ":1099/BigDamasService");
-            System.out.println("Conectado com sucesso ao Servidor RMI do Big Damas!");
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Não foi possível conectar ao servidor do jogo!\n" + e.getMessage(), "Erro de Conexão", JOptionPane.ERROR_MESSAGE);
-            System.exit(0);
-        }
-
+    public TabuleiroJogo(IJogoService jogoServiceConectado) {
+    	this.jogoService = jogoServiceConectado;
+    	
         // Titulo e definições principais
         setTitle("Big Damas");
         setExtendedState(JFrame.MAXIMIZED_BOTH);
