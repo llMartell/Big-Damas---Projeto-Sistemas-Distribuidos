@@ -5,39 +5,50 @@ import br.bigdamas.enums.TipoPeca;
 import br.bigdamas.model.Peca;
 import br.bigdamas.model.Tabuleiro;
 
-public class JogoService {
+import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
+
+// 1. Estende UnicastRemoteObject e implementa a interface RMI
+public class JogoService extends UnicastRemoteObject implements IJogoService {
 
     private Tabuleiro tabuleiro;
     private Jogador jogadorAtual;
     private boolean jogoEncerrado;
 
-    public JogoService() {
+    // 2. O construtor deve lançar RemoteException e chamar super()
+    public JogoService() throws RemoteException {
+        super();
         this.tabuleiro = new Tabuleiro();
         this.jogadorAtual = Jogador.JOGADOR_1;
         this.jogoEncerrado = false;
     }
 
-    public Tabuleiro getTabuleiro() {
+    // 3. Adicionado throws RemoteException nos métodos públicos da interface
+    @Override
+    public Tabuleiro getTabuleiro() throws RemoteException {
         return tabuleiro;
     }
 
-    public Jogador getJogadorAtual() {
+    @Override
+    public Jogador getJogadorAtual() throws RemoteException {
         return jogadorAtual;
     }
 
-    public boolean isJogoEncerrado() {
+    @Override
+    public boolean isJogoEncerrado() throws RemoteException {
         return jogoEncerrado;
     }
 
-    public String[][] getEstadoTabuleiro() {
+    @Override
+    public String[][] getEstadoTabuleiro() throws RemoteException {
         return tabuleiro.gerarEstadoTabuleiro();
     }
 
-    public boolean moverPeca(int origemLinha, int origemColuna, int destinoLinha, int destinoColuna) {
+    @Override
+    public boolean moverPeca(int origemLinha, int origemColuna, int destinoLinha, int destinoColuna) throws RemoteException {
 
         if (jogoEncerrado) {
             System.out.println("O jogo já terminou.");
-
             return false;
         }
 
@@ -45,7 +56,6 @@ public class JogoService {
 
         if (!posicaoValida(origemLinha, origemColuna) || !posicaoValida(destinoLinha, destinoColuna)) {
             System.out.println("Posição inválida.");
-
             return false;
         }
 
@@ -53,19 +63,16 @@ public class JogoService {
 
         if (peca == null) {
             System.out.println("Não existe peça nessa posição.");
-
             return false;
         }
 
         if (peca.getJogador() != jogadorAtual) {
             System.out.println("Não é a vez desse jogador.");
-
             return false;
         }
 
         if (matriz[destinoLinha][destinoColuna] != null) {
             System.out.println("Destino ocupado.");
-
             return false;
         }
 
@@ -74,14 +81,16 @@ public class JogoService {
 
         if (peca.getTipo() == TipoPeca.DAMA) {
             moveu = moverDama(origemLinha, origemColuna, destinoLinha, destinoColuna, existeCapturaObrigatoria);
-
         } else {
-
             moveu = moverPecaComum(origemLinha, origemColuna, destinoLinha, destinoColuna, existeCapturaObrigatoria);
         }
 
         return moveu;
     }
+
+    // =====================================================================
+    // OS MÉTODOS PRIVADOS ABAIXO CONTINUAM EXATAMENTE IGUAIS (NÃO MUDAM)
+    // =====================================================================
 
     private boolean moverPecaComum(int origemLinha, int origemColuna, int destinoLinha, int destinoColuna, boolean capturaObrigatoria) {
         Peca[][] matriz = tabuleiro.getMatriz();

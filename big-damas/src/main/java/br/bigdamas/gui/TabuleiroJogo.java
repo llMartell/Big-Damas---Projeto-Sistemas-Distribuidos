@@ -1,18 +1,19 @@
 package br.bigdamas.gui;
+
 import br.bigdamas.enums.Jogador;
 import br.bigdamas.enums.TipoPeca;
 import br.bigdamas.model.Peca;
-import br.bigdamas.service.JogoService;
+import br.bigdamas.service.IJogoService; // Alterado para importar a Interface
 
 import javax.swing.*;
 import java.awt.*;
 import java.net.URL;
 
 public class TabuleiroJogo extends JFrame {
-    //Matriz do tabuleiro
+    // Matriz do tabuleiro
     private java.util.Map<String, ImageIcon> cacheIcones = new java.util.HashMap<>();
     private JButton[][] casas = new JButton[8][8];
-    private br.bigdamas.service.JogoService jogoService;
+    private br.bigdamas.service.IJogoService jogoService; // Alterado para a Interface
 
     // Controle de Jogada
     private int[] origemSelecionada = null; // [linha, coluna]
@@ -21,10 +22,23 @@ public class TabuleiroJogo extends JFrame {
     private JLabel labelCapturasJ1;
     private JLabel labelCapturasJ2;
     private JLabel labelStatusTurno;
+    
+    // Controle para o pop-up não repetir infinitamente por causa da Thread
+    private boolean avisoFimDeJogoExibido = false; 
 
     public TabuleiroJogo() {
-        this.jogoService = new JogoService();
-        //Titulo e definições principais
+        // Tenta conectar ao servidor remoto RMI
+        try {
+            // IMPORTANTE: Altere para o IP real do computador Servidor quando testar em duas máquinas
+            String ipServidor = "127.0.0.1"; 
+            this.jogoService = (br.bigdamas.service.IJogoService) java.rmi.Naming.lookup("rmi://" + ipServidor + ":1099/BigDamasService");
+            System.out.println("Conectado com sucesso ao Servidor RMI do Big Damas!");
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Não foi possível conectar ao servidor do jogo!\n" + e.getMessage(), "Erro de Conexão", JOptionPane.ERROR_MESSAGE);
+            System.exit(0);
+        }
+
+        // Titulo e definições principais
         setTitle("Big Damas");
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -33,7 +47,7 @@ public class TabuleiroJogo extends JFrame {
         // Container principal
         Container painelPrincipal = getContentPane();
         painelPrincipal.setLayout(new BorderLayout());
-        painelPrincipal.setBackground(new Color(30, 30, 30)); // Mudei para destacar
+        painelPrincipal.setBackground(new Color(30, 30, 30));
 
         // Container do tabuleiro
         JPanel painelCentral = new JPanel(new GridBagLayout());
@@ -43,11 +57,11 @@ public class TabuleiroJogo extends JFrame {
         painelTabuleiro.setPreferredSize(new Dimension(700, 700));
         painelTabuleiro.setBorder(BorderFactory.createLineBorder(Color.WHITE, 5));
 
-        //Definição das cores do tabuleiro
+        // Definição das cores do tabuleiro
         Color corClara = new Color(248, 230, 206);
         Color corEscura = new Color(122, 86, 65);
 
-        //Matriz
+        // Matriz
         for (int linha = 0; linha < 8; linha++) {
             for (int coluna = 0; coluna < 8; coluna++) {
                 JButton botao = new JButton();
@@ -82,6 +96,19 @@ public class TabuleiroJogo extends JFrame {
         painelPrincipal.add(labelStatusTurno, BorderLayout.SOUTH);
 
         renderizarInterface();
+
+        // ATUALIZAÇÃO REMOTA CONTINUA (Thread de sincronização)
+        new Thread(() -> {
+            while (true) {
+                try {
+                    Thread.sleep(1000); // Verifica se o oponente jogou a cada 1 segundo
+                    renderizarInterface();
+                    repaint();
+                } catch (Exception e) {
+                    System.err.println("Erro na thread de atualização visual: " + e.getMessage());
+                }
+            }
+        }).start();
     }
 
     private JPanel criarPainelJogador(Jogador jogador, String nomeArquivoMeme) {
@@ -118,7 +145,7 @@ public class TabuleiroJogo extends JFrame {
         if (jogador == Jogador.JOGADOR_1) labelCapturasJ1 = labelCapturas;
         else labelCapturasJ2 = labelCapturas;
 
-        //Chamadas
+        // Chamadas
         painel.add(labelFoto);
         painel.add(Box.createVerticalStrut(20));
         painel.add(labelNome);
@@ -129,105 +156,121 @@ public class TabuleiroJogo extends JFrame {
     }
 
     private void renderizarInterface() {
-        Peca[][] matriz = jogoService.getTabuleiro().getMatriz();
-        Jogador atual = jogoService.getJogadorAtual();
+        try {
+            Peca[][] matriz = jogoService.getTabuleiro().getMatriz();
+            Jogador atual = jogoService.getJogadorAtual();
 
-        for (int l = 0; l < 8; l++) {
-            for (int c = 0; c < 8; c++) {
-                Peca peca = matriz[l][c];
-                JButton botao = casas[l][c];
-                botao.setIcon(null);
+            for (int l = 0; l < 8; l++) {
+                for (int c = 0; c < 8; c++) {
+                    Peca peca = matriz[l][c];
+                    JButton botao = casas[l][c];
+                    botao.setIcon(null);
 
-                // Verifica casa selecionada
-                boolean isSelecionada = (origemSelecionada != null && origemSelecionada[0] == l && origemSelecionada[1] == c);
+                    // Verifica casa selecionada
+                    boolean isSelecionada = (origemSelecionada != null && origemSelecionada[0] == l && origemSelecionada[1] == c);
 
-                if (peca != null) {
-                    String baseName = (peca.getJogador() == Jogador.JOGADOR_1 ? "j1" : "j2");
-                    baseName += (peca.getTipo() == TipoPeca.DAMA ? "_dama" : "_normal");
+                    if (peca != null) {
+                        String baseName = (peca.getJogador() == Jogador.JOGADOR_1 ? "j1" : "j2");
+                        baseName += (peca.getTipo() == TipoPeca.DAMA ? "_dama" : "_normal");
 
-                    // Se selecionada, usa .gif, senão .png
-                    String extensao = isSelecionada ? ".gif" : ".png";
-                    String path = "/img/" + baseName + extensao;
+                        // Se selecionada, usa .gif, senão .png
+                        String extensao = isSelecionada ? ".gif" : ".png";
+                        String path = "/img/" + baseName + extensao;
 
-                    botao.setIcon(carregarIcone(path, 70, 70));
-                }
+                        botao.setIcon(carregarIcone(path, 70, 70));
+                    }
 
-                // Borda da peça selecionada
-                if (isSelecionada) {
-                    botao.setBorder(BorderFactory.createLineBorder(Color.YELLOW, 4));
-                } else {
-                    botao.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
+                    // Borda da peça selecionada
+                    if (isSelecionada) {
+                        botao.setBorder(BorderFactory.createLineBorder(Color.YELLOW, 4));
+                    } else {
+                        botao.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
+                    }
                 }
             }
-        }
 
-        // Peças comidas
-        int pecasJ1 = contarPecas(Jogador.JOGADOR_1);
-        int pecasJ2 = contarPecas(Jogador.JOGADOR_2);
-        labelCapturasJ1.setText("Peças Comidas: " + (12 - pecasJ2));
-        labelCapturasJ2.setText("Peças Comidas: " + (12 - pecasJ1));
+            // Peças comidas
+            int pecasJ1 = contarPecas(Jogador.JOGADOR_1);
+            int pecasJ2 = contarPecas(Jogador.JOGADOR_2);
+            labelCapturasJ1.setText("Peças Comidas: " + (12 - pecasJ2));
+            labelCapturasJ2.setText("Peças Comidas: " + (12 - pecasJ1));
 
-        // 3. Status do Turno
-        labelStatusTurno.setText("VEZ DO JOGADOR " + (atual == Jogador.JOGADOR_1 ? "1" : "2"));
+            // Status do Turno
+            labelStatusTurno.setText("VEZ DO JOGADOR " + (atual == Jogador.JOGADOR_1 ? "1" : "2"));
 
-        if (jogoService.isJogoEncerrado()) {
-            String vencedor = (pecasJ1>0) ? "1" : "2";
-            labelStatusTurno.setText("VITÓRIA DO JOGADOR " + vencedor + "!");
-            JOptionPane.showMessageDialog(this, "FIM DE JOGO!");
+            if (jogoService.isJogoEncerrado()) {
+                String vencedor = (pecasJ1 > 0) ? "1" : "2";
+                labelStatusTurno.setText("VITÓRIA DO JOGADOR " + vencedor + "!");
+                
+                // Evita disparar múltiplos diálogos devido à Thread periódica
+                if (!avisoFimDeJogoExibido) {
+                    avisoFimDeJogoExibido = true;
+                    JOptionPane.showMessageDialog(this, "FIM DE JOGO!");
+                }
+            }
+        } catch (java.rmi.RemoteException e) {
+            System.err.println("Erro de conexão remota ao tentar atualizar a interface gráfica.");
         }
     }
 
     private void handleClique(int linha, int coluna) {
-        if (jogoService.isJogoEncerrado()) return;
+        try {
+            if (jogoService.isJogoEncerrado()) return;
 
-        Peca[][] matriz = jogoService.getTabuleiro().getMatriz();
-        Peca pecaClicada = matriz[linha][coluna];
+            Peca[][] matriz = jogoService.getTabuleiro().getMatriz();
+            Peca pecaClicada = matriz[linha][coluna];
 
-        // Origem
-        if (origemSelecionada == null) {
-            if (pecaClicada != null && pecaClicada.getJogador() == jogoService.getJogadorAtual()) {
-                origemSelecionada = new int[]{linha, coluna};
+            // Origem
+            if (origemSelecionada == null) {
+                if (pecaClicada != null && pecaClicada.getJogador() == jogoService.getJogadorAtual()) {
+                    origemSelecionada = new int[]{linha, coluna};
+                }
             }
-        }
-        // Destino
-        else {
-            int oL = origemSelecionada[0];
-            int oC = origemSelecionada[1];
+            // Destino
+            else {
+                int oL = origemSelecionada[0];
+                int oC = origemSelecionada[1];
 
-            // Se clicar na mesma casa, cancela seleção
-            if (oL == linha && oC == coluna) {
-                origemSelecionada = null;
-            } else {
-                // Aqui ocorre a chamada do RMI
-                boolean sucesso = jogoService.moverPeca(oL, oC, linha, coluna);
-
-                if (sucesso) {
-                    origemSelecionada = null; // Reset para o próximo turno
+                // Se clicar na mesma casa, cancela seleção
+                if (oL == linha && oC == coluna) {
+                    origemSelecionada = null;
                 } else {
-                    // Feedback visual de erro ou troca de seleção se clicar em outra peça sua
-                    if (pecaClicada != null && pecaClicada.getJogador() == jogoService.getJogadorAtual()) {
-                        origemSelecionada = new int[]{linha, coluna};
+                    // Chamada remota via RMI cercada por tratamento
+                    boolean sucesso = jogoService.moverPeca(oL, oC, linha, coluna);
+
+                    if (sucesso) {
+                        origemSelecionada = null; // Reset para o próximo turno
+                    } else {
+                        // Feedback visual de erro ou troca de seleção se clicar em outra peça sua
+                        if (pecaClicada != null && pecaClicada.getJogador() == jogoService.getJogadorAtual()) {
+                            origemSelecionada = new int[]{linha, coluna};
+                        }
                     }
                 }
             }
+            renderizarInterface();
+        } catch (java.rmi.RemoteException e) {
+            JOptionPane.showMessageDialog(this, "Instabilidade na rede ao realizar jogada: " + e.getMessage(), "Erro RMI", JOptionPane.WARNING_MESSAGE);
         }
-        renderizarInterface();
     }
 
     private int contarPecas(Jogador jogador) {
         int count = 0;
-        Peca[][] matriz = jogoService.getTabuleiro().getMatriz();
-        for (Peca[] linha : matriz) {
-            for (Peca p : linha) {
-                if (p != null && p.getJogador() == jogador) count++;
+        try {
+            Peca[][] matriz = jogoService.getTabuleiro().getMatriz();
+            for (Peca[] linha : matriz) {
+                for (Peca p : linha) {
+                    if (p != null && p.getJogador() == jogador) count++;
+                }
             }
+        } catch (java.rmi.RemoteException e) {
+            System.err.println("Erro remoto ao contar peças.");
         }
         return count;
     }
 
-     //Método para renderizar imagens
+    // Método para renderizar imagens
     private ImageIcon carregarIcone(String path, int width, int height) {
-        // Se a imagem já foi carregada antes, retorna ela direto da memória (Rápido!)
         if (cacheIcones.containsKey(path)) {
             return cacheIcones.get(path);
         }
@@ -241,7 +284,6 @@ public class TabuleiroJogo extends JFrame {
         ImageIcon iconResultado;
 
         if (path.toLowerCase().endsWith(".gif")) {
-            // Para GIFs: Carregamos o original e criamos uma versão que se auto-ajusta no desenho
             ImageIcon original = new ImageIcon(imgUrl);
             iconResultado = new ImageIcon(original.getImage()) {
                 @Override
@@ -250,20 +292,16 @@ public class TabuleiroJogo extends JFrame {
                 public int getIconHeight() { return height; }
                 @Override
                 public synchronized void paintIcon(Component c, Graphics g, int x, int y) {
-                    // Desenha a imagem redimensionada em tempo real sem travar
                     g.drawImage(getImage(), x, y, width, height, c);
                 }
             };
         } else {
-            // Para PNG/JPG: Redimensionamento padrão
             ImageIcon original = new ImageIcon(imgUrl);
             Image img = original.getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH);
             iconResultado = new ImageIcon(img);
         }
 
-        // Guarda na memória para a próxima vez
         cacheIcones.put(path, iconResultado);
         return iconResultado;
     }
 }
-
