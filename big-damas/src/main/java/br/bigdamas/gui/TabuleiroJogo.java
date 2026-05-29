@@ -88,7 +88,7 @@ public class TabuleiroJogo extends JFrame {
 
         renderizarInterface();
 
-        // ATUALIZAÇÃO REMOTA CONTINUA (Thread de sincronização)
+        // Thread de checagem de jogadas
         new Thread(() -> {
             while (true) {
                 try {
@@ -199,6 +199,7 @@ public class TabuleiroJogo extends JFrame {
                     JOptionPane.showMessageDialog(this, "FIM DE JOGO!");
                 }
             }
+            //Mensagem de erro caso ocorra erro com a GUI
         } catch (java.rmi.RemoteException e) {
             System.err.println("Erro de conexão remota ao tentar atualizar a interface gráfica.");
         }
@@ -241,6 +242,7 @@ public class TabuleiroJogo extends JFrame {
             }
             renderizarInterface();
         } catch (java.rmi.RemoteException e) {
+            //Cria uma tela com a mensagem de erro, caso tenha
             JOptionPane.showMessageDialog(this, "Instabilidade na rede ao realizar jogada: " + e.getMessage(), "Erro RMI", JOptionPane.WARNING_MESSAGE);
         }
     }
