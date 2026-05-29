@@ -7,7 +7,7 @@ import java.rmi.registry.Registry;
 public class ServidorMain {
     public static void main(String[] args) {
         try {
-            // Coloque aqui o IP da rede local da máquina que vai rodar o Servidor
+            // Coloque aqui o IP da máquina que vai rodar o Servidor
             String ipServidor = "127.0.0.1"; 
             System.setProperty("java.rmi.server.hostname", ipServidor);
 
